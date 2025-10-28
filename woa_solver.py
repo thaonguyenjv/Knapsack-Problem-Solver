@@ -167,7 +167,7 @@ if __name__ == "__main__":
         plt.grid(True, alpha=0.3)
         plt.tight_layout()
         plt.savefig('woa_convergence.png')  # Lưu ảnh thay vì show
-        print("\n✅ Biểu đồ đã được lưu: woa_convergence.png")
+        print("\nBiểu đồ đã được lưu: woa_convergence.png")
         # plt.show()  # Comment để không block terminal
     except Exception as e:
         print(f"Không thể vẽ biểu đồ: {e}")

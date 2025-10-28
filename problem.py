@@ -2,7 +2,7 @@ import numpy as np
 
 # Định nghĩa dữ liệu Knapsack
 weights = [10, 20, 30, 40, 50]
-values = [60, 100, 120, 150, 200]
+values = [40, 100, 120, 150, 200]
 capacity = 100
 
 def fitness(solution):
@@ -14,5 +14,5 @@ def fitness(solution):
 
 if __name__ == "__main__":
     # ví dụ test
-    s = [1, 0, 1, 0, 1]  # chọn vật 1, 3, 5
+    s = [1, 1, 0, 0, 1]  # chọn vật 1, 3, 5
     print("Fitness:", fitness(s))
