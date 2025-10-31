@@ -8,7 +8,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 # Import modules
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from ga_solver import solve_ga
-from problem import weights, values, capacity#, get_problem_info
+from problem import weights, values, capacity, get_problem_info
 from utils import plot_convergence
 
 
@@ -76,8 +76,8 @@ class GAGui:
         )
         data_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=8)
 
-        #tk.Label(data_frame, text=get_problem_info(), bg="#ecf0f1",
-        #         font=("Courier New", 9), justify="left").pack(anchor="w", pady=5)
+        tk.Label(data_frame, text=get_problem_info(), bg="#ecf0f1",
+                 font=("Courier New", 9), justify="left").pack(anchor="w", pady=5)
 
         # === Nút chạy ===
         tk.Button(

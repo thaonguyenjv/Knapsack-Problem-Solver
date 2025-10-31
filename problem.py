@@ -11,8 +11,10 @@ def fitness(solution):
     if total_weight > capacity:
         return 0  # vượt quá sức chứa → nghiệm không hợp lệ
     return total_value
-
-if __name__ == "__main__":
-    # ví dụ test
-    s = [1, 1, 0, 0, 1]  # chọn vật 1, 3, 5
-    print("Fitness:", fitness(s))
+# Lấy thông tin từ file 
+def get_problem_info():
+    info = f"Số lượng vật: {len(weights)}\n"
+    info += f"Capacity: {capacity}\n"
+    info += "Weights:\n" + str(weights[:10]) + ("..." if len(weights) > 10 else "") + "\n"
+    info += "Values:\n" + str(values[:10]) + ("..." if len(values) > 10 else "")
+    return info

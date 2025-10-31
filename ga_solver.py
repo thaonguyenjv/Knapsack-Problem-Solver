@@ -1,4 +1,5 @@
 import random
+from problem import fitness, weights, values, capacity
 
 def calculate_fitness(solution, weights, values, capacity):
     """
@@ -197,64 +198,3 @@ def solve_ga(weights, values, capacity, pop_size=50, generations=100,
         population = new_population
     
     return best_solution, best_value, history
-
-
-# Test function
-def test_ga():
-    """Test GA với dữ liệu mẫu"""
-    print("=" * 60)
-    print("TEST GENETIC ALGORITHM - KNAPSACK PROBLEM")
-    print("=" * 60)
-    
-    # Dữ liệu test
-    weights = [2, 3, 4, 5, 9]
-    values = [3, 4, 8, 8, 10]
-    capacity = 20
-    
-    print(f"\nDữ liệu test:")
-    print(f"Weights: {weights}")
-    print(f"Values:  {values}")
-    print(f"Capacity: {capacity}")
-    
-    # Chạy GA
-    print(f"\nChạy GA với:")
-    print(f"- Population size: 30")
-    print(f"- Generations: 50")
-    print(f"- Crossover rate: 0.8")
-    print(f"- Mutation rate: 0.01")
-    
-    solution, value, history = solve_ga(
-        weights, values, capacity,
-        pop_size=30,
-        generations=50,
-        crossover_rate=0.8,
-        mutation_rate=0.01
-    )
-    
-    print(f"\n{'─' * 60}")
-    print(f"KẾT QUẢ:")
-    print(f"{'─' * 60}")
-    print(f"Nghiệm tốt nhất: {solution}")
-    print(f"Giá trị đạt được: {value}")
-    
-    # Tính trọng lượng
-    total_weight = sum(solution[i] * weights[i] for i in range(len(solution)))
-    print(f"Tổng trọng lượng: {total_weight}/{capacity}")
-    
-    # Items được chọn
-    selected_items = [i for i in range(len(solution)) if solution[i] == 1]
-    print(f"Items được chọn: {selected_items}")
-    
-    print(f"\nQuá trình hội tụ (10 thế hệ đầu):")
-    for i in range(min(10, len(history))):
-        print(f"  Generation {i+1:3d}: fitness = {history[i]}")
-    
-    print(f"\nQuá trình hội tụ (10 thế hệ cuối):")
-    for i in range(max(0, len(history)-10), len(history)):
-        print(f"  Generation {i+1:3d}: fitness = {history[i]}")
-    
-    print(f"\n{'=' * 60}")
-
-
-if __name__ == "__main__":
-    test_ga()
