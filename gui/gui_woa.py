@@ -7,15 +7,15 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 # Import modules
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from ga_solver import solve_ga
-from problem import weights, values, capacity#, get_problem_info
+from woa_solver import WOA
+from problem import weights, values, capacity, get_problem_info
 from utils import plot_convergence
 
 
-class GAGui:
+class WOAGui:
     def __init__(self, root):
         self.root = root
-        self.root.title("Genetic Algorithm - Knapsack Problem")
+        self.root.title("Whale Optimization Algorithm - Knapsack Problem")
         self.root.geometry("1000x700")
         self.root.resizable(False, False)
 
@@ -29,7 +29,7 @@ class GAGui:
         # Tiêu đề
         tk.Label(
             self.root,
-            text="GENETIC ALGORITHM - KNAPSACK SOLVER",
+            text="WHALE OPTIMIZATION ALGORITHM - KNAPSACK SOLVER",
             font=("Arial", 18, "bold"),
             fg="#2c3e50",
             bg="#ecf0f1",
@@ -46,28 +46,20 @@ class GAGui:
         )
         left_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(0, 8))
 
-        # === Tham số GA ===
+        # === Tham số WOA ===
         param_frame = tk.LabelFrame(
-            left_frame, text="Tham số GA",
+            left_frame, text="Tham số WOA",
             font=("Arial", 11, "bold"), bg="#ecf0f1"
         )
         param_frame.pack(fill=tk.X, padx=10, pady=8)
 
-        tk.Label(param_frame, text="Population size:", bg="#ecf0f1").grid(row=0, column=0, sticky=tk.W, pady=4)
-        self.pop_size = tk.IntVar(value=50)
-        tk.Entry(param_frame, textvariable=self.pop_size, width=15).grid(row=0, column=1, pady=4, padx=5)
+        tk.Label(param_frame, text="Số lượng cá voi:", bg="#ecf0f1").grid(row=0, column=0, sticky=tk.W, pady=4)
+        self.num_whales = tk.IntVar(value=30)
+        tk.Entry(param_frame, textvariable=self.num_whales, width=15).grid(row=0, column=1, pady=4, padx=5)
 
-        tk.Label(param_frame, text="Generations:", bg="#ecf0f1").grid(row=1, column=0, sticky=tk.W, pady=4)
-        self.generations = tk.IntVar(value=100)
-        tk.Entry(param_frame, textvariable=self.generations, width=15).grid(row=1, column=1, pady=4, padx=5)
-
-        tk.Label(param_frame, text="Crossover rate:", bg="#ecf0f1").grid(row=2, column=0, sticky=tk.W, pady=4)
-        self.crossover_rate = tk.DoubleVar(value=0.8)
-        tk.Entry(param_frame, textvariable=self.crossover_rate, width=15).grid(row=2, column=1, pady=4, padx=5)
-
-        tk.Label(param_frame, text="Mutation rate:", bg="#ecf0f1").grid(row=3, column=0, sticky=tk.W, pady=4)
-        self.mutation_rate = tk.DoubleVar(value=0.05)
-        tk.Entry(param_frame, textvariable=self.mutation_rate, width=15).grid(row=3, column=1, pady=4, padx=5)
+        tk.Label(param_frame, text="Số vòng lặp:", bg="#ecf0f1").grid(row=1, column=0, sticky=tk.W, pady=4)
+        self.num_iters = tk.IntVar(value=100)
+        tk.Entry(param_frame, textvariable=self.num_iters, width=15).grid(row=1, column=1, pady=4, padx=5)
 
         # === Dữ liệu hiện tại ===
         data_frame = tk.LabelFrame(
@@ -76,19 +68,19 @@ class GAGui:
         )
         data_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=8)
 
-        #tk.Label(data_frame, text=get_problem_info(), bg="#ecf0f1",
-        #         font=("Courier New", 9), justify="left").pack(anchor="w", pady=5)
+        tk.Label(data_frame, text=get_problem_info(), bg="#ecf0f1",
+                 font=("Courier New", 9), justify="left").pack(anchor="w", pady=5)
 
         # === Nút chạy ===
         tk.Button(
             left_frame,
-            text="▶ CHẠY GA",
+            text="▶ CHẠY WOA",
             bg="#27ae60",
             fg="white",
             font=("Arial", 13, "bold"),
             height=2,
             cursor="hand2",
-            command=self.start_ga
+            command=self.start_woa
         ).pack(fill=tk.X, padx=10, pady=15)
 
         # --------- RIGHT PANEL (Result + Chart) ---------
@@ -133,18 +125,18 @@ class GAGui:
     def init_plot(self):
         self.ax.clear()
         self.ax.set_title("Chưa có dữ liệu", fontsize=12)
-        self.ax.set_xlabel("Generation")
+        self.ax.set_xlabel("Iteration")
         self.ax.set_ylabel("Fitness Value")
         self.ax.grid(True)
         self.canvas.draw()
 
     def update_plot(self, history):
         self.ax.clear()
-        self.ax.plot(history, color="#e67e22", linewidth=2)
+        self.ax.plot(history, color="#3498db", linewidth=2)
         self.ax.scatter(0, history[0], color="green", s=50, label="Start")
         self.ax.scatter(len(history) - 1, history[-1], color="red", s=50, label="End")
-        self.ax.set_title("GA Convergence Curve", fontsize=12, fontweight="bold")
-        self.ax.set_xlabel("Generation")
+        self.ax.set_title("WOA Convergence Curve", fontsize=12, fontweight="bold")
+        self.ax.set_xlabel("Iteration")
         self.ax.set_ylabel("Best Fitness Value")
         self.ax.legend(loc="lower right")
         self.ax.grid(True)
@@ -154,7 +146,7 @@ class GAGui:
         total_weight = sum(weights[i] * best_solution[i] for i in range(len(weights)))
         selected = [i + 1 for i, x in enumerate(best_solution) if x == 1]
 
-        result = "=" * 45 + "\nKẾT QUẢ GA\n" + "=" * 45 + "\n"
+        result = "=" * 45 + "\nKẾT QUẢ WOA\n" + "=" * 45 + "\n"
         result += f"Nghiệm tốt nhất: {best_solution}\n"
         result += f"Vật được chọn: {selected}\n"
         result += f"Tổng giá trị đạt được: {best_value}\n"
@@ -163,11 +155,11 @@ class GAGui:
         self.result_box.delete(1.0, tk.END)
         self.result_box.insert(tk.END, result)
 
-        messagebox.showinfo("Hoàn tất", f"GA hoàn thành!\nGiá trị tốt nhất: {best_value}")
+        messagebox.showinfo("Hoàn tất", f"WOA hoàn thành!\nGiá trị tốt nhất: {best_value}")
 
-    def start_ga(self):
+    def start_woa(self):
         if self.is_running:
-            messagebox.showwarning("Cảnh báo", "GA đang chạy!")
+            messagebox.showwarning("Cảnh báo", "WOA đang chạy!")
             return
 
         self.is_running = True
@@ -176,33 +168,25 @@ class GAGui:
         self.result_box.delete(1.0, tk.END)
         self.init_plot()
 
-        threading.Thread(target=self.run_ga, daemon=True).start()
+        threading.Thread(target=self.run_woa, daemon=True).start()
 
-    def run_ga(self):
+    def run_woa(self):
         try:
-            pop_size = self.pop_size.get()
-            generations = self.generations.get()
-            crossover_rate = self.crossover_rate.get()
-            mutation_rate = self.mutation_rate.get()
-
-            best_sol, best_val, history = solve_ga(
-                weights, values, capacity,
-                pop_size=pop_size,
-                generations=generations,
-                crossover_rate=crossover_rate,
-                mutation_rate=mutation_rate
-            )
+            n_whales = self.num_whales.get()
+            max_iter = self.num_iters.get()
+            woa = WOA(n_whales=n_whales, max_iter=max_iter, dim=len(weights))
+            best_sol, best_val, history = woa.optimize()
             self.history = history
 
             self.root.after(0, self.update_plot, history)
             self.root.after(0, self.show_results, best_sol, best_val)
-            self.root.after(0, lambda: plot_convergence(history, "GA"))
+            self.root.after(0, lambda: plot_convergence(history, "WOA"))
         except Exception as e:
             messagebox.showerror("Lỗi", f"Đã xảy ra lỗi: {str(e)}")
         finally:
-            self.root.after(0, self.finish_ga)
+            self.root.after(0, self.finish_woa)
 
-    def finish_ga(self):
+    def finish_woa(self):
         self.is_running = False
         self.progress_var.set("Hoàn thành!")
         self.progress_bar["value"] = 100
@@ -214,7 +198,7 @@ class GAGui:
 
 def main():
     root = tk.Tk()
-    app = GAGui(root)
+    app = WOAGui(root)
     root.mainloop()
 
 

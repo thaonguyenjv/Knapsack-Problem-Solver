@@ -1,10 +1,4 @@
-"""
-ga_solver.py - Cài đặt Genetic Algorithm cho bài toán Knapsack
-Thuật toán di truyền hoàn toàn từ đầu, không dùng thư viện sẵn
-"""
-
 import random
-
 
 def calculate_fitness(solution, weights, values, capacity):
     """
