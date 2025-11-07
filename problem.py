@@ -1,9 +1,9 @@
 import csv
 
 # Định nghĩa dữ liệu Knapsack
-weights = [10, 20, 30, 40, 50]
-values = [40, 100, 120, 150, 200]
-capacity = 100
+weights = []
+values = []
+capacity = 0
 
 def fitness(solution):
     total_weight = sum(weights[i] * solution[i] for i in range(len(weights)))
@@ -12,19 +12,19 @@ def fitness(solution):
         return 0
     return total_value
 
-# Lấy thông tin từ file 
 def get_problem_info():
-    info = f"Số lượng vật: {len(weights)}\n"
-    info += f"Capacity: {capacity}\n"
-    info += "Weights:\n" + str(weights[:10]) + ("..." if len(weights) > 10 else "") + "\n"
-    info += "Values:\n" + str(values[:10]) + ("..." if len(values) > 10 else "")
-    return info
+    """Trả chuỗi mô tả ngắn gọn dùng để hiển thị GUI."""
+    return (f"Số lượng vật: {len(weights)}\n"
+            f"Capacity: {capacity}\n"
+            f"Weights: {weights[:10]}{'...' if len(weights)>10 else ''}\n"
+            f"Values: {values[:10]}{'...' if len(values)>10 else ''}")
 
 def load_knapsack_from_csv(file_path):
     """
     Đọc dữ liệu Knapsack từ file CSV bằng thư viện csv
     Cột: Name, Value, Weight
     """
+    global weights, values, capacity
     weights_list = []
     values_list = []
     
@@ -37,13 +37,15 @@ def load_knapsack_from_csv(file_path):
         
         total_weight = sum(weights_list)
         capacity = int(total_weight * 0.5)
-        
+
+        # Cập nhật dữ liệu toàn cục
+        weights = weights_list
+        values = values_list
         print(f"Đã load {len(weights_list)} items từ {file_path}")
         print(f"  - Tổng trọng lượng: {total_weight}")
         print(f"  - Capacity (50%): {capacity}")
+        return True
         
-        return weights_list, values_list, capacity
-    
     except FileNotFoundError:
         print(f"Không tìm thấy file: {file_path}")
         return [], [], 0

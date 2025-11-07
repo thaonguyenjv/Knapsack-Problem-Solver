@@ -1,8 +1,5 @@
 import time
-import random
-import numpy as np
 import matplotlib.pyplot as plt
-import tkinter as tk
 
 def plot_convergence(history, algo_name):
     plt.plot(history)
@@ -17,4 +14,3 @@ def timeit(func, *args, **kwargs):
     result = func(*args, **kwargs)
     end = time.time()
     return end - start, result
-
