@@ -1,15 +1,15 @@
 import numpy as np
 import random
-from problem import fitness, weights, values, capacity
+import problem as p
 
 class WOA:
     """
     Whale Optimization Algorithm for Knapsack Problem
     """
-    def __init__(self, n_whales=30, max_iter=100, dim=5):
+    def __init__(self, n_whales=30, max_iter=100, dim=None):
         self.n_whales = n_whales
         self.max_iter = max_iter
-        self.dim = dim
+        self.dim = len(p.weights) if dim is None else dim
         self.best_position = None
         self.best_fitness = 0
         self.history = []
@@ -35,8 +35,8 @@ class WOA:
     def repair_solution(self, solution):
         """Sửa nghiệm nếu vượt quá capacity"""
         while True:
-            total_weight = sum([weights[i] * solution[i] for i in range(self.dim)])
-            if total_weight <= capacity:
+            total_weight = sum([p.weights[i] * solution[i] for i in range(self.dim)])
+            if total_weight <= p.capacity:
                 break
             # Loại bỏ ngẫu nhiên một vật đã chọn
             selected_items = [i for i in range(self.dim) if solution[i] == 1]
@@ -54,7 +54,7 @@ class WOA:
                           for _ in range(self.n_whales)]
         
         # Tìm cá voi tốt nhất ban đầu
-        fitness_list = [fitness(whale) for whale in population]
+        fitness_list = [p.fitness(whale) for whale in population]
         best_idx = np.argmax(fitness_list)
         self.best_position = population[best_idx].copy()
         self.best_fitness = fitness_list[best_idx]
@@ -68,19 +68,15 @@ class WOA:
             for i in range(self.n_whales):
                 r1 = random.random()
                 r2 = random.random()
-                
                 A = 2 * a * r1 - a
                 C = 2 * r2
-                
                 b = 1  # hằng số cho spiral
                 l = random.uniform(-1, 1)
-                
-                p = random.random()
-                
+                pr = random.random()
                 # Chuyển best_position sang continuous để tính toán
                 best_continuous = continuous_pop[best_idx]
                 
-                if p < 0.5:
+                if pr < 0.5:
                     if abs(A) < 1:
                         # Encircling prey (bao vây con mồi)
                         D = [abs(C * best_continuous[j] - continuous_pop[i][j]) 
@@ -107,7 +103,7 @@ class WOA:
                 population[i] = self.repair_solution(population[i])
             
             # Cập nhật best solution
-            fitness_list = [fitness(whale) for whale in population]
+            fitness_list = [p.fitness(whale) for whale in population]
             current_best_idx = np.argmax(fitness_list)
             current_best_fitness = fitness_list[current_best_idx]
             

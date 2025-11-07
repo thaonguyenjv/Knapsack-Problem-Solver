@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import ttk, messagebox
+from tkinter import ttk, messagebox, filedialog
 import threading
 import sys, os
 import matplotlib.pyplot as plt
@@ -8,7 +8,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 # Import modules
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from woa_solver import WOA
-from problem import weights, values, capacity, get_problem_info
+import problem as p
 from utils import plot_convergence
 
 
@@ -16,7 +16,7 @@ class WOAGui:
     def __init__(self, root):
         self.root = root
         self.root.title("Whale Optimization Algorithm - Knapsack Problem")
-        self.root.geometry("1000x700")
+        self.root.geometry("1600x950")
         self.root.resizable(False, False)
 
         self.is_running = False
@@ -30,46 +30,58 @@ class WOAGui:
         tk.Label(
             self.root,
             text="WHALE OPTIMIZATION ALGORITHM - KNAPSACK SOLVER",
-            font=("Arial", 18, "bold"),
+            font=("Arial", 24, "bold"),
             fg="#2c3e50",
             bg="#ecf0f1",
-            pady=10
+            pady=15
         ).pack(fill=tk.X)
 
         main = tk.Frame(self.root, bg="#ecf0f1")
-        main.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+        main.pack(fill=tk.BOTH, expand=True, padx=15, pady=10)
 
         # --------- LEFT PANEL (Parameters + Data) ---------
         left_frame = tk.LabelFrame(
-            main, text="⚙ Tham số và Dữ liệu",
-            font=("Arial", 12, "bold"), bg="#ecf0f1"
+            main, text="Tham số và Dữ liệu",
+            font=("Arial", 22, "bold"), bg="#ecf0f1"
         )
-        left_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(0, 8))
+        left_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(0, 10), ipadx=10, ipady=10)
 
         # === Tham số WOA ===
         param_frame = tk.LabelFrame(
             left_frame, text="Tham số WOA",
-            font=("Arial", 11, "bold"), bg="#ecf0f1"
+            font=("Arial", 20, "bold"), bg="#ecf0f1"
         )
-        param_frame.pack(fill=tk.X, padx=10, pady=8)
+        param_frame.pack(fill=tk.X, padx=10, pady=10)
 
-        tk.Label(param_frame, text="Số lượng cá voi:", bg="#ecf0f1").grid(row=0, column=0, sticky=tk.W, pady=4)
-        self.num_whales = tk.IntVar(value=30)
-        tk.Entry(param_frame, textvariable=self.num_whales, width=15).grid(row=0, column=1, pady=4, padx=5)
+        tk.Label(param_frame, text="Số lượng cá voi:", font=("Arial", 14, "bold"), bg="#ecf0f1").grid(row=0, column=0, sticky=tk.W, pady=5)
+        self.num_whales = tk.IntVar(value=50)
+        tk.Entry(param_frame, textvariable=self.num_whales, width=15).grid(row=0, column=1, pady=5, padx=8)
 
-        tk.Label(param_frame, text="Số vòng lặp:", bg="#ecf0f1").grid(row=1, column=0, sticky=tk.W, pady=4)
+        tk.Label(param_frame, text="Số vòng lặp:", font=("Arial", 14, "bold"), bg="#ecf0f1").grid(row=1, column=0, sticky=tk.W, pady=5)
         self.num_iters = tk.IntVar(value=100)
-        tk.Entry(param_frame, textvariable=self.num_iters, width=15).grid(row=1, column=1, pady=4, padx=5)
+        tk.Entry(param_frame, textvariable=self.num_iters, width=15).grid(row=1, column=1, pady=5, padx=8)
 
         # === Dữ liệu hiện tại ===
         data_frame = tk.LabelFrame(
             left_frame, text="Dữ liệu Knapsack",
-            font=("Arial", 11, "bold"), bg="#ecf0f1"
+            font=("Arial", 20, "bold"), bg="#ecf0f1"
         )
-        data_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=8)
+        data_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
 
-        tk.Label(data_frame, text=get_problem_info(), bg="#ecf0f1",
-                 font=("Courier New", 9), justify="left").pack(anchor="w", pady=5)
+        # data label (cập nhật được)
+        self.data_label = tk.Label(data_frame, text= "Chưa có dữ liệu", bg="#ecf0f1",
+                                   font=("Lora", 12), justify="left", anchor="w")
+        self.data_label.pack(anchor="w", pady=5, fill=tk.X)
+
+        # Nút tải file CSV
+        tk.Button(
+            data_frame,
+            text="Tải dữ liệu CSV",
+            bg="#2980b9",
+            fg="white",
+            font=("Arial", 14, "bold"),
+            command=self.load_csv_data
+        ).pack(fill=tk.X, padx=10, pady=(5, 10))
 
         # === Nút chạy ===
         tk.Button(
@@ -77,7 +89,7 @@ class WOAGui:
             text="▶ CHẠY WOA",
             bg="#27ae60",
             fg="white",
-            font=("Arial", 13, "bold"),
+            font=("Arial", 20, "bold"),
             height=2,
             cursor="hand2",
             command=self.start_woa
@@ -85,39 +97,32 @@ class WOAGui:
 
         # --------- RIGHT PANEL (Result + Chart) ---------
         right_frame = tk.LabelFrame(
-            main, text="📊 Kết quả",
-            font=("Arial", 12, "bold"), bg="#ecf0f1"
+            main, text="Kết quả",
+            font=("Arial", 22, "bold"), bg="#ecf0f1"
         )
-        right_frame.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True, padx=(8, 0))
+        right_frame.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True, padx=(10, 0))
 
         # Kết quả chi tiết
-        result_frame = tk.Frame(right_frame, bg="#ecf0f1")
-        result_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
+        result_frame = tk.LabelFrame(right_frame, text="Kết quả chi tiết", font=("Arial", 20, "bold"), bg="#ecf0f1")
+        result_frame.pack(fill=tk.BOTH, expand=True, padx=15, pady=(10, 5))
 
-        tk.Label(result_frame, text="Kết quả chi tiết:", font=("Arial", 11, "bold"),
-                 bg="#ecf0f1").pack(anchor="w")
-
-        self.result_box = tk.Text(result_frame, width=50, height=10,
-                                  font=("Courier New", 9), wrap=tk.WORD)
-        self.result_box.pack(fill=tk.BOTH, expand=True, pady=(5, 10))
+        self.result_box = tk.Text(result_frame, width=70, height=15, font=("Lora", 12), wrap=tk.WORD)
+        self.result_box.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
 
         # Biểu đồ hội tụ
-        chart_frame = tk.Frame(right_frame, bg="#ecf0f1")
-        chart_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
+        chart_frame = tk.LabelFrame(right_frame, text="Biểu đồ hội tụ", font=("Arial", 20, "bold"), bg="#ecf0f1")
+        chart_frame.pack(fill=tk.BOTH, expand=True, padx=15, pady=10)
 
-        tk.Label(chart_frame, text="Biểu đồ hội tụ:",
-                 font=("Arial", 11, "bold"), bg="#ecf0f1").pack(anchor="w")
-
-        self.fig, self.ax = plt.subplots(figsize=(6, 4))
+        self.fig, self.ax = plt.subplots(figsize=(8, 5))
         self.canvas = FigureCanvasTkAgg(self.fig, master=chart_frame)
         self.canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
 
         # Progress bar
         self.progress_var = tk.StringVar(value="Chưa bắt đầu")
-        self.progress_label = tk.Label(left_frame, textvariable=self.progress_var, bg="#ecf0f1", font=("Arial", 10))
+        self.progress_label = tk.Label(left_frame, textvariable=self.progress_var, bg="#ecf0f1", font=("Arial", 14))
         self.progress_label.pack(anchor="w", padx=10, pady=(10, 0))
         self.progress_bar = ttk.Progressbar(left_frame, mode="determinate")
-        self.progress_bar.pack(fill=tk.X, padx=10, pady=5)
+        self.progress_bar.pack(fill=tk.X, padx=12, pady=5)
 
         self.init_plot()
 
@@ -130,6 +135,31 @@ class WOAGui:
         self.ax.grid(True)
         self.canvas.draw()
 
+    def load_csv_data(self):
+        """Mở hộp chọn file CSV, load data vào problem module và cập nhật label."""
+        path = filedialog.askopenfilename(
+            title="Chọn file CSV",
+            filetypes=[("CSV files", "*.csv"), ("All files", "*.*")]
+        )
+        if not path:
+            return
+        try:
+            ok = p.load_knapsack_from_csv(path)  
+            if ok:
+                # Lấy chuỗi mô tả từ get_problem_info
+                try:
+                    info = p.get_problem_info()
+                except AttributeError:
+                    info = (f"Số lượng vật: {len(p.weights)}\n"
+                            f"Capacity: {p.capacity}\n"
+                            f"Weights: {p.weights[:10]}{'...' if len(p.weights)>10 else ''}\n"
+                            f"Values: {p.values[:10]}{'...' if len(p.values)>10 else ''}")
+                self.data_label.config(text=info)
+                messagebox.showinfo("Thành công", f"Đã tải dữ liệu từ:\n{os.path.basename(path)}")
+            else:
+                messagebox.showerror("Lỗi", "Không thể đọc dữ liệu từ file. Kiểm tra định dạng CSV (Name,Value,Weight).")
+        except Exception as e:
+            messagebox.showerror("Lỗi", f"Lỗi khi tải file:\n{e}")
     def update_plot(self, history):
         self.ax.clear()
         self.ax.plot(history, color="#3498db", linewidth=2)
@@ -143,14 +173,14 @@ class WOAGui:
         self.canvas.draw()
 
     def show_results(self, best_solution, best_value):
-        total_weight = sum(weights[i] * best_solution[i] for i in range(len(weights)))
+        total_weight = sum(p.weights[i] * best_solution[i] for i in range(len(p.weights)))
         selected = [i + 1 for i, x in enumerate(best_solution) if x == 1]
 
         result = "=" * 45 + "\nKẾT QUẢ WOA\n" + "=" * 45 + "\n"
         result += f"Nghiệm tốt nhất: {best_solution}\n"
         result += f"Vật được chọn: {selected}\n"
         result += f"Tổng giá trị đạt được: {best_value}\n"
-        result += f"Tổng trọng lượng: {total_weight}/{capacity}\n"
+        result += f"Tổng trọng lượng: {total_weight}/{p.capacity}\n"
 
         self.result_box.delete(1.0, tk.END)
         self.result_box.insert(tk.END, result)
@@ -174,7 +204,7 @@ class WOAGui:
         try:
             n_whales = self.num_whales.get()
             max_iter = self.num_iters.get()
-            woa = WOA(n_whales=n_whales, max_iter=max_iter, dim=len(weights))
+            woa = WOA(n_whales=n_whales, max_iter=max_iter)
             best_sol, best_val, history = woa.optimize()
             self.history = history
 
@@ -200,7 +230,6 @@ def main():
     root = tk.Tk()
     app = WOAGui(root)
     root.mainloop()
-
 
 if __name__ == "__main__":
     main()
