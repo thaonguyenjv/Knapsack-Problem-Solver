@@ -48,6 +48,7 @@ class WOA:
     
     def optimize(self):
         """Thuật toán WOA chính"""
+        random.seed(42) #lưu lại chọn số ngẫu nhiên
         # Khởi tạo quần thể
         population = self.initialize_population()
         continuous_pop = [[random.uniform(-2, 2) for _ in range(self.dim)] 
@@ -72,11 +73,11 @@ class WOA:
                 C = 2 * r2
                 b = 1  # hằng số cho spiral
                 l = random.uniform(-1, 1)
-                pr = random.random()
+                prob = random.random()
                 # Chuyển best_position sang continuous để tính toán
                 best_continuous = continuous_pop[best_idx]
                 
-                if pr < 0.5:
+                if prob < 0.5:
                     if abs(A) < 1:
                         # Encircling prey (bao vây con mồi)
                         D = [abs(C * best_continuous[j] - continuous_pop[i][j]) 
