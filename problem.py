@@ -44,7 +44,7 @@ def load_knapsack_from_csv(file_path):
         print(f"Đã load {len(weights_list)} items từ {file_path}")
         print(f"  - Tổng trọng lượng: {total_weight}")
         print(f"  - Capacity (50%): {capacity}")
-        return True
+        return weights, values, capacity
         
     except FileNotFoundError:
         print(f"Không tìm thấy file: {file_path}")
