@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import messagebox
 import os
 import sys
+sys.dont_write_bytecode = True
 
 # Thêm thư mục gốc vào path
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
