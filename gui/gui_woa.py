@@ -12,12 +12,11 @@ import problem as p
 from utils import plot_convergence
 
 
-class WOAGui:
+class App:
     def __init__(self, root):
         self.root = root
         self.root.title("Whale Optimization Algorithm - Knapsack Problem")
         self.root.geometry("1600x950")
-        self.root.resizable(False, False)
 
         self.is_running = False
         self.history = []
@@ -228,7 +227,7 @@ class WOAGui:
 
 def main():
     root = tk.Tk()
-    app = WOAGui(root)
+    app = App(root)
     root.mainloop()
 
 if __name__ == "__main__":

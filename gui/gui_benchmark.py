@@ -315,7 +315,7 @@ class App:
         self.runs2 = tk.StringVar(value="5")
         tk.Entry(cfg, textvariable=self.runs2, width=15).pack(padx=12, pady=2)
 
-        tk.Button(cfg, text="CHẠY BENCHMARK", bg="#27ae60", fg="white",
+        tk.Button(cfg, text="▶ CHẠY", bg="#27ae60", fg="white",
                   font=("Arial", 12, "bold"), command=self.run_th2_full).pack(fill=tk.X, pady=15, padx=12)
 
         # ====== THANH TRẠNG THÁI TH2 ======
