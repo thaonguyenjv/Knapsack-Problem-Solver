@@ -1,6 +1,7 @@
-import os, time, importlib
-from problem import load_knapsack_from_csv
+import time, importlib
+import problem as p
 from ga_solver import solve_ga
+from woa_solver import WOA
 
 DATA_DIR = 'data'
 
@@ -12,10 +13,8 @@ def run_single(algo, w, v, c, pop=50, iters=100, return_convergence=False):
         if return_convergence:
             convergence = hist
     else:
-        import problem
-        problem.weights = w; problem.values = v; problem.capacity = c
+        p.weights = w; p.values = v; p.capacity = c
         importlib.reload(__import__('woa_solver'))
-        from woa_solver import WOA
         woa = WOA(pop, iters, len(w))
         _, val, hist = woa.optimize()
         if return_convergence:

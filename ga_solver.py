@@ -4,13 +4,11 @@ from problem import fitness, weights, values, capacity
 def calculate_fitness(solution, weights, values, capacity):
     """
     Tính fitness của một nghiệm (chromosome)
-    
     Args:
         solution: list nhị phân [0,1,0,1,...] 
         weights: list trọng lượng items
         values: list giá trị items
         capacity: sức chứa tối đa
-    
     Returns:
         fitness value (nếu vượt capacity thì trả về 0)
     """
@@ -27,11 +25,9 @@ def calculate_fitness(solution, weights, values, capacity):
 def initialize_population(pop_size, num_items):
     """
     Khởi tạo quần thể ngẫu nhiên
-    
     Args:
         pop_size: số lượng cá thể
         num_items: số lượng items
-    
     Returns:
         population: list các chromosome (mỗi chromosome là list nhị phân)
     """
@@ -45,12 +41,10 @@ def initialize_population(pop_size, num_items):
 def selection_tournament(population, fitnesses, tournament_size=3):
     """
     Chọn lọc bằng Tournament Selection
-    
     Args:
         population: quần thể hiện tại
         fitnesses: fitness của từng cá thể
         tournament_size: số cá thể tham gia tournament
-    
     Returns:
         selected chromosome
     """
@@ -72,11 +66,9 @@ def selection_tournament(population, fitnesses, tournament_size=3):
 def crossover_one_point(parent1, parent2, crossover_rate):
     """
     Lai ghép một điểm cắt (One-point Crossover)
-    
     Args:
         parent1, parent2: hai cá thể cha mẹ
         crossover_rate: xác suất lai ghép
-    
     Returns:
         child1, child2: hai cá thể con
     """
@@ -97,11 +89,9 @@ def crossover_one_point(parent1, parent2, crossover_rate):
 def mutate(chromosome, mutation_rate):
     """
     Đột biến gen (Bit Flip Mutation)
-    
     Args:
         chromosome: cá thể cần đột biến
         mutation_rate: xác suất đột biến mỗi gen
-    
     Returns:
         mutated chromosome
     """
@@ -119,7 +109,6 @@ def solve_ga(weights, values, capacity, pop_size=50, generations=100,
              crossover_rate=0.8, mutation_rate=0.01):
     """
     Giải bài toán Knapsack bằng Genetic Algorithm
-    
     Args:
         weights: list trọng lượng items
         values: list giá trị items
@@ -128,12 +117,12 @@ def solve_ga(weights, values, capacity, pop_size=50, generations=100,
         generations: số thế hệ
         crossover_rate: tỉ lệ lai ghép
         mutation_rate: tỉ lệ đột biến
-    
     Returns:
         best_solution: nghiệm tốt nhất (list nhị phân)
         best_value: giá trị fitness tốt nhất
         history: lịch sử fitness qua các thế hệ (để vẽ biểu đồ)
     """
+    random.seed(42) #lưu lại chọn số ngẫu nhiên
     num_items = len(weights)
     
     # Khởi tạo quần thể
