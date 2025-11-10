@@ -9,114 +9,115 @@ sys.path.append(BASE_DIR)
 from problem import load_knapsack_from_csv
 from benchmark import run_single
 
-BG_MAIN = "#ecf0f1"
-FG_TITLE = "#2c3e50"
-FONT_TITLE = ("Arial", 18, "bold")
-FONT_SECTION = ("Arial", 12, "bold")
-FONT_LABEL = ("Arial", 11)
-FONT_BUTTON = ("Arial", 13, "bold")
-COLOR_GA = "#D04A53"
-COLOR_WOA = "#231D6B"
-BTN_RUN = "#27ae60"
-
-class App:
+class App:  
     def __init__(self, root):
         self.root = root
         self.root.title("GA vs WOA - So sánh hiệu năng")
         self.root.geometry("1600x950")
-        self.root.configure(bg=BG_MAIN)
+        self.root.configure(bg="#ecf0f1")
         self.data = []
 
         tk.Label(
             self.root,
             text="SO SÁNH HIỆU NĂNG GA vs WOA",
-            font=FONT_TITLE,
-            fg=FG_TITLE,
-            bg=BG_MAIN,
+            font=("Arial", 24, "bold"),
+            fg="#2c3e50",
+            bg="#ecf0f1",
             pady=15
         ).pack(fill=tk.X)
 
         nb = ttk.Notebook(self.root)
-        nb.pack(fill=tk.BOTH, expand=True, padx=15, pady=15)
-        tab_th1 = tk.Frame(nb, bg=BG_MAIN)
-        tab_th2 = tk.Frame(nb, bg=BG_MAIN)
-        nb.add(tab_th1, text="TH1: QUẢN LÝ ĐƠN HÀNG")
-        nb.add(tab_th2, text="TH2: LỰA CHỌN LOẠI XE")
+        nb.pack(fill=tk.BOTH, expand=True, padx=15, pady=10)
+        tab_th1 = tk.Frame(nb, bg="#ecf0f1")
+        tab_th2 = tk.Frame(nb, bg="#ecf0f1")
+        nb.add(tab_th1, text="QUẢN LÝ ĐƠN HÀNG")
+        nb.add(tab_th2, text="LỰA CHỌN LOẠI XE")
         self.build_th1(tab_th1)
         self.build_th2(tab_th2)
 
     # ====================== TH1 ======================
     def build_th1(self, parent):
-        left = tk.LabelFrame(parent, text="Tham số & Dữ liệu", font=FONT_SECTION, fg=FG_TITLE)
+        left = tk.LabelFrame(parent, text="Tham số & Dữ liệu", font=("Arial", 14, "bold"), fg="#2c3e50", bg="#ecf0f1")
         left.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(0, 10))
 
         # TẢI FILE
-        top = tk.Frame(left); top.pack(fill=tk.X, pady=8)
-        tk.Label(top, text="Chọn file data:", font=FONT_LABEL).pack(side=tk.LEFT, padx=8)
+        top = tk.Frame(left, bg="#ecf0f1"); top.pack(fill=tk.X, pady=5)
+        tk.Label(top, text="Chọn file data:", font=("Arial", 12), bg="#ecf0f1").pack(side=tk.LEFT, padx=8)
         self.file1 = tk.StringVar(value="100")
         ttk.Combobox(top, textvariable=self.file1, values=["100","500","1000"], width=12).pack(side=tk.LEFT, padx=5)
-        tk.Button(top, text="TẢI FILE", bg="#368dc6", fg="white", font=("Arial", 10, "bold"),
+        tk.Button(top, text="Tải dữ liệu", bg="#2980b9", fg="white", font=("Arial", 14, "bold"),
                   command=self.load_th1).pack(side=tk.LEFT, padx=5)
 
-        # NÚT THÊM SỬA XÓA 
-        btns = tk.Frame(left); btns.pack(fill=tk.X, pady=6)
+        # ====== NÚT THÊM/SỬA/XÓA ======
+        btns = tk.Frame(left, bg="#ecf0f1"); btns.pack(fill=tk.X, pady=6)
         for txt, cmd in [("THÊM", self.add1), ("SỬA", self.edit1), ("XÓA", self.del1)]:
-            tk.Button(btns, text=txt, bg="#ecf0f1", fg="black", width=9, font=("Arial", 9, "bold"),
-                      command=cmd).pack(side=tk.LEFT, padx=4)
+            tk.Button(btns, text=txt, bg="#bdc3c7", fg="black", width=9,
+                      font=("Arial", 10, "bold"), command=cmd).pack(side=tk.LEFT, padx=4)
 
-        # CẤU HÌNH CHẠY
-        cfg = tk.LabelFrame(left, text="CẤU HÌNH CHẠY TH1", font=FONT_SECTION, fg=FG_TITLE)
-        cfg.pack(fill=tk.X, pady=10)
-        tk.Label(cfg, text="Số lần chạy:", font=FONT_LABEL).pack(anchor='w', padx=12, pady=3)
+        # ====== PHẠM VI & LẦN CHẠY ======
+        cfg = tk.LabelFrame(left, text="Cấu hình Benchmark", font=("Arial", 14, "bold"), bg="#ecf0f1", fg="#2c3e50")
+        cfg.pack(fill=tk.X, pady=8)
+        tk.Label(cfg, text="Số lần chạy:", font=("Arial", 12), bg="#ecf0f1").pack(anchor='w', padx=12)
         self.runs1 = tk.StringVar(value="5")
-        tk.Entry(cfg, textvariable=self.runs1, width=18).pack(padx=12, pady=2)
-        tk.Label(cfg, text="PHẠM VI CHẠY (start-end):", font=FONT_LABEL).pack(anchor='w', padx=12, pady=3)
-        range_f = tk.Frame(cfg); range_f.pack(pady=4)
-        self.start1 = tk.StringVar(value="0"); self.end1 = tk.StringVar(value="100")
-        tk.Entry(range_f, textvariable=self.start1, width=12).pack(side=tk.LEFT, padx=6)
-        tk.Label(range_f, text="-", font=("Arial", 14, "bold")).pack(side=tk.LEFT)
-        tk.Entry(range_f, textvariable=self.end1, width=12).pack(side=tk.LEFT, padx=6)
-        tk.Button(cfg, text="CHẠY BENCHMARK", bg=BTN_RUN, fg="white",
-                  font=FONT_BUTTON, command=self.run_th1_full).pack(fill=tk.X, pady=12, padx=12)
+        tk.Entry(cfg, textvariable=self.runs1, width=18).pack(padx=12, pady=4)
 
-        # BẢNG DỮ LIỆU
-        tbl = tk.LabelFrame(left, text="Dữ liệu (Click để sửa/xóa)", font=FONT_SECTION, fg=FG_TITLE)
+        tk.Label(cfg, text="Phạm vi (start-end):", font=("Arial", 12), bg="#ecf0f1").pack(anchor='w', padx=12)
+        f = tk.Frame(cfg, bg="#ecf0f1"); f.pack(padx=12, pady=4)
+        self.start1 = tk.StringVar(value="0")
+        self.end1 = tk.StringVar(value="100")
+        tk.Entry(f, textvariable=self.start1, width=12).pack(side=tk.LEFT)
+        tk.Label(f, text="-", font=("Arial", 14, "bold"), bg="#ecf0f1").pack(side=tk.LEFT, padx=5)
+        tk.Entry(f, textvariable=self.end1, width=12).pack(side=tk.LEFT)
+
+        # ====== NÚT CHẠY ======
+        tk.Button(left, text="▶ CHẠY", bg="#27ae60", fg="white",
+                  font=("Arial", 14, "bold"), height=2, command=self.run_th1_full).pack(fill=tk.X, padx=10, pady=15)
+        
+        # ====== THANH TRẠNG THÁI TH1 ======
+        self.progress_var = tk.StringVar(value="Chưa bắt đầu")
+        self.progress_label = tk.Label(left, textvariable=self.progress_var, bg="#ecf0f1", font=("Arial", 12), fg="#2c3e50")
+        self.progress_label.pack(anchor="w", padx=10, pady=(10, 0))
+        self.progress_bar = ttk.Progressbar(left, mode="determinate")
+        self.progress_bar.pack(fill=tk.X, padx=12, pady=5)
+
+        # ====== BẢNG DỮ LIỆU ======
+        tbl = tk.LabelFrame(left, text="Danh sách kiện hàng (Click để sửa/xóa)", font=("Arial", 14, "bold"), bg="#ecf0f1", fg="#2c3e50")
         tbl.pack(fill=tk.BOTH, expand=True, pady=10)
         cols = ("Tên", "Giá trị", "Trọng lượng")
         self.tree1 = ttk.Treeview(tbl, columns=cols, show="headings", height=14)
         for c in cols:
             self.tree1.heading(c, text=c)
-            self.tree1.column(c, anchor="center", width=160)
+            self.tree1.column(c, anchor="center", width=150)
         scrollbar = ttk.Scrollbar(tbl, orient="vertical", command=self.tree1.yview)
         self.tree1.configure(yscrollcommand=scrollbar.set)
         scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
         self.tree1.pack(fill=tk.BOTH, expand=True)
 
-        right = tk.LabelFrame(parent, text="", font=FONT_SECTION, fg=FG_TITLE)
+        right = tk.LabelFrame(parent, text="", font=("Arial", 14, "bold"), fg="#2c3e50", bg="#ecf0f1")
         right.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True, padx=(10, 0))
 
-        # BẢNG KẾT QUẢ
-        self.result_frame1 = tk.LabelFrame(right, text="Kết quả", font=FONT_SECTION, fg=FG_TITLE)
+        # ====== KHUNG KẾT QUẢ ======
+        self.result_frame1 = tk.LabelFrame(right, text="Kết quả", font=("Arial", 14, "bold"), fg="#2c3e50", bg="#ecf0f1")
         self.result_frame1.pack(fill=tk.X, pady=(0, 10))
         self.tree_result1 = ttk.Treeview(
-            self.result_frame1, columns=("Algo", "Value", "Time", "Conv Speed", "Win"), show="headings", height=2
+            self.result_frame1, columns=("Algorithm", "Value", "Time", "Conv Speed", "Win"), show="headings", height=4
         )
-        for c in ("Algo", "Value", "Time", "Conv Speed", "Win"):
+        for c in ("Algorithm", "Value", "Time", "Conv Speed", "Win"):
             self.tree_result1.heading(c, text=c)
-            self.tree_result1.column(c, anchor="center", width=140)
+            self.tree_result1.column(c, anchor="center", width=120)
         self.tree_result1.pack(fill=tk.X, padx=12, pady=6)
 
         # BIỂU ĐỒ
-        chart_frame = tk.Frame(right)
+        chart_frame = tk.Frame(right, bg="#ecf0f1")
         chart_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
 
-        tk.Label(chart_frame, text="So sánh hiệu năng:", font=("Arial", 11, "bold")).pack(anchor="w")
+        tk.Label(chart_frame, text="So sánh hiệu năng:", font=("Arial", 14, "bold"), bg="#ecf0f1", fg="#2c3e50").pack(anchor="w")
 
-        plot_container = tk.Frame(chart_frame)
+        plot_container = tk.Frame(chart_frame, bg="#ecf0f1")
         plot_container.pack(fill=tk.BOTH, expand=True)
 
-        #2 biểu đồ cột(thời gian + giá trị tb)
-        left_plot = tk.Frame(plot_container, width=380)
+        # Biểu đồ cột(thời gian + giá trị tb)
+        left_plot = tk.Frame(plot_container, width=380, bg="#ecf0f1")
         left_plot.pack(side=tk.LEFT, fill=tk.Y, padx=(0, 10))
 
         self.fig_bar = plt.Figure(figsize=(3.8, 6))
@@ -131,18 +132,23 @@ class App:
         self.can_conv = FigureCanvasTkAgg(self.fig_conv, plot_container)
         self.can_conv.get_tk_widget().pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)
 
+    # ====== HÀM LOAD FILE & XỬ LÝ ======
     def load_th1(self):
-        size = self.file1.get()
-        path = os.path.join(BASE_DIR, "data", f"data_{size}_unique.csv")
-        w, v, _ = load_knapsack_from_csv(path)
-        self.data = [(f"Hàng {i+1}", v[i], w[i]) for i in range(len(w))]
-        self.end1.set(str(len(w)))
-        self.refresh_tree1()
+        try:
+            size = self.file1.get()
+            path = os.path.join(BASE_DIR, "data", f"data_{size}_unique.csv")
+            w, v, _ = load_knapsack_from_csv(path)
+            self.data = [(f"Hàng {i+1}", v[i], w[i]) for i in range(len(w))]
+            self.end1.set(str(len(w)))
+            self.refresh_tree1()
+            messagebox.showinfo("Thành công", f"Đã tải {len(self.data)} kiện hàng!")
+        except Exception as e:
+            messagebox.showerror("Lỗi", f"Không thể tải file: {str(e)}")
 
     def refresh_tree1(self):
         for i in self.tree1.get_children(): self.tree1.delete(i)
         for row in self.data: self.tree1.insert("", "end", values=row)
-
+    # ====== CRUD ======
     def add1(self):
         n = simpledialog.askstring("THÊM", "Tên:")
         v = simpledialog.askinteger("THÊM", "Giá trị:")
@@ -165,20 +171,33 @@ class App:
 
     def del1(self):
         sel = self.tree1.selection()
-        if sel and messagebox.askyesno("XÓA", "Xóa dòng này?"):
+        if sel and messagebox.askyesno("XÁC NHẬN", "Xóa dòng này?"):
             idx = self.tree1.index(sel[0])
             del self.data[idx]
             self.refresh_tree1()
-
+    # ====== CHẠY BENCHMARK TH1 ======
     def run_th1_full(self):
+        if not self.data:
+            return messagebox.showerror("Lỗi", "Vui lòng tải dữ liệu trước khi chạy!")
         try:
             start = int(self.start1.get())
             end = int(self.end1.get())
-            if end <= start or end > len(self.data): raise ValueError
+            if start < 0:
+                return messagebox.showerror("Lỗi", "Start phải >= 0!")
+            if end <= start:
+                return messagebox.showerror("Lỗi", "End phải lớn hơn Start!")
+            if start >= len(self.data):
+                return messagebox.showerror("Lỗi", f"Start không được >= {len(self.data)}!")
+            if end > len(self.data):
+                return messagebox.showerror("Lỗi", f"End không được vượt quá {len(self.data)} (tổng số items)!")
             runs = int(self.runs1.get())
-            if runs < 1: raise ValueError
-        except:
-            return messagebox.showerror("Lỗi", "Phạm vi hoặc số lần chạy không hợp lệ!")
+            if runs < 1:
+                return messagebox.showerror("Lỗi", "Số lần chạy phải >= 1!")
+            self.progress_var.set("Đang chạy...")
+            self.progress_bar["maximum"] = runs
+            self.progress_bar["value"] = 0
+        except ValueError:
+            return messagebox.showerror("Lỗi", "Vui lòng nhập số hợp lệ!")
         threading.Thread(target=self.exec_th1_full, args=(start, end, runs), daemon=True).start()
 
     def exec_th1_full(self, start, end, runs):
@@ -189,11 +208,14 @@ class App:
         ga_vals, ga_times, woa_vals, woa_times = [], [], [], []
         ga_hist_all, woa_hist_all = [], []
 
-        for _ in range(runs):
+        for run_idx in range(runs):
             gv, gt, g_hist = run_single('GA', w, v, c, return_convergence=True)
             wv, wt, w_hist = run_single('WOA', w, v, c, return_convergence=True)
             ga_vals.append(gv); ga_times.append(gt); ga_hist_all.append(g_hist)
             woa_vals.append(wv); woa_times.append(wt); woa_hist_all.append(w_hist)
+            
+            # Cập nhật thanh tiến trình
+            self.root.after(0, self.update_progress1, run_idx + 1, runs)
 
         max_len = max(len(h) for h in ga_hist_all + woa_hist_all if h)
         ga_hist_padded = [np.pad(h, (0, max_len - len(h)), constant_values=h[-1] if h else 0) if len(h) < max_len else h for h in ga_hist_all]
@@ -222,7 +244,13 @@ class App:
         }
         self.root.after(0, self.show_th1_result, result)
 
+    def update_progress1(self, current, total):
+        self.progress_bar["value"] = current
+        self.progress_var.set(f"Đang chạy: {current}/{total} lần")
+
     def show_th1_result(self, r):
+        self.progress_var.set(f"Hoàn thành! ({r['runs']} lần chạy)")
+        
         for i in self.tree_result1.get_children(): self.tree_result1.delete(i)
         self.tree_result1.insert("", "end", values=(
             "GA", f"{r['ga_val']:,.0f}", f"{r['ga_time']:.3f}", f"{r['ga_conv_speed']:.1f}",
@@ -237,63 +265,70 @@ class App:
         self.ax_time.clear()
         self.ax_conv_plot.clear()
 
-        bars_val = self.ax_value.bar(['GA', 'WOA'], [r['ga_val'], r['woa_val']], color=[COLOR_GA, COLOR_WOA], width=0.6, edgecolor='black')
+        bars_val = self.ax_value.bar(['GA', 'WOA'], [r['ga_val'], r['woa_val']], color=["#e67e22", "#3498db"], width=1, edgecolor='black')
         self.ax_value.set_title("Giá trị trung bình", fontsize=10, fontweight='bold')
         self.ax_value.set_ylabel("Giá trị")
         for bar in bars_val:
             h = bar.get_height()
-            self.ax_value.text(bar.get_x() + bar.get_width()/2, h + h*0.02, f"{h:,.0f}", ha='center', fontsize=9, fontweight='bold')
+            self.ax_value.text(bar.get_x() + bar.get_width()/2, h + h*0.02, f"{h:,.0f}", ha='center', fontsize=10, fontweight='bold')
 
-        bars_time = self.ax_time.bar(['GA', 'WOA'], [r['ga_time'], r['woa_time']], color=[COLOR_GA, COLOR_WOA], width=0.6, edgecolor='black')
+        bars_time = self.ax_time.bar(['GA', 'WOA'], [r['ga_time'], r['woa_time']], color=["#e67e22", "#3498db"], width=1, edgecolor='black')
         self.ax_time.set_title("Thời gian trung bình (giây)", fontsize=10, fontweight='bold')
         self.ax_time.set_ylabel("Giây")
         for bar in bars_time:
             h = bar.get_height()
-            self.ax_time.text(bar.get_x() + bar.get_width()/2, h + h*0.02, f"{h:.3f}", ha='center', fontsize=9, fontweight='bold')
+            self.ax_time.text(bar.get_x() + bar.get_width()/2, h + h*0.02, f"{h:.3f}", ha='center', fontsize=10, fontweight='bold')
 
         self.fig_bar.tight_layout()
         self.can_bar.draw()
 
         gens = range(len(r['ga_hist']))
-        self.ax_conv_plot.plot(gens, r['ga_hist'], label='GA', color=COLOR_GA, linewidth=3)
-        self.ax_conv_plot.plot(gens, r['woa_hist'], label='WOA', color=COLOR_WOA, linewidth=3)
+        self.ax_conv_plot.plot(gens, r['ga_hist'], label='GA', color="#e67e22", linewidth=3)
+        self.ax_conv_plot.plot(gens, r['woa_hist'], label='WOA', color="#3498db", linewidth=3)
 
         if r['max_fitness'] > 0:
             self.ax_conv_plot.axhline(y=0.95 * r['max_fitness'], color='red', linestyle='--', linewidth=2, label='95% tối ưu')
 
-        self.ax_conv_plot.set_title(f"Biểu đồ hội tụ trung bình - TH1: {r['items']}", fontsize=12, fontweight='bold', pad=15)
+        self.ax_conv_plot.set_title(f"Biểu đồ hội tụ trung bình {r['items']}", fontsize=10, fontweight='bold', pad=15)
         self.ax_conv_plot.set_xlabel("Thế hệ")
         self.ax_conv_plot.set_ylabel("Giá trị tốt nhất")
-        self.ax_conv_plot.legend(fontsize=11, loc='lower right')
+        self.ax_conv_plot.legend(fontsize=10, loc='lower right')
         self.ax_conv_plot.grid(True, alpha=0.3)
         self.fig_conv.tight_layout()
         self.can_conv.draw()
 
     # ====================== TH2 ======================
     def build_th2(self, parent):
-        left = tk.LabelFrame(parent, text="Cấu hình TH2", font=FONT_SECTION, fg=FG_TITLE)
+        left = tk.LabelFrame(parent, text="Tham số & Cấu hình", font=("Arial", 14, "bold"), fg="#2c3e50", bg="#ecf0f1")
         left.pack(side=tk.LEFT, fill=tk.Y, padx=(0, 15), pady=15)
 
-        cfg = tk.Frame(left); cfg.pack(fill=tk.X, pady=10)
-        tk.Label(cfg, text="File:", font=FONT_LABEL).pack(anchor='w', padx=12, pady=2)
+        cfg = tk.Frame(left, bg="#ecf0f1"); cfg.pack(fill=tk.X, pady=10)
+        tk.Label(cfg, text="File:", font=("Arial", 12), bg="#ecf0f1", fg="#2c3e50").pack(anchor='w', padx=12, pady=2)
         self.file2 = tk.StringVar(value="100")
         ttk.Combobox(cfg, textvariable=self.file2, values=["100","500","1000"], width=15).pack(padx=12, pady=2)
 
-        tk.Label(cfg, text="Tỷ lệ (%):", font=FONT_LABEL).pack(anchor='w', padx=12, pady=2)
+        tk.Label(cfg, text="Tỷ lệ loại xe(%):", font=("Arial", 12), bg="#ecf0f1", fg="#2c3e50").pack(anchor='w', padx=12, pady=2)
         self.ratio2 = tk.StringVar(value="30,50,70")
         tk.Entry(cfg, textvariable=self.ratio2, width=20).pack(padx=12, pady=2)
 
-        tk.Label(cfg, text="Số lần chạy:", font=FONT_LABEL).pack(anchor='w', padx=12, pady=2)
+        tk.Label(cfg, text="Số lần chạy:", font=("Arial", 12), bg="#ecf0f1", fg="#2c3e50").pack(anchor='w', padx=12, pady=2)
         self.runs2 = tk.StringVar(value="5")
         tk.Entry(cfg, textvariable=self.runs2, width=15).pack(padx=12, pady=2)
 
-        tk.Button(cfg, text="CHẠY BENCHMARK", bg=BTN_RUN, fg="white",
-                  font=FONT_BUTTON, command=self.run_th2_full).pack(fill=tk.X, pady=15, padx=12)
+        tk.Button(cfg, text="▶ CHẠY", bg="#27ae60", fg="white",
+                  font=("Arial", 12, "bold"), command=self.run_th2_full).pack(fill=tk.X, pady=15, padx=12)
 
-        right = tk.LabelFrame(parent, text="", font=FONT_SECTION, fg=FG_TITLE)
+        # ====== THANH TRẠNG THÁI TH2 ======
+        self.progress_var2 = tk.StringVar(value="Chưa bắt đầu")
+        self.progress_label2 = tk.Label(left, textvariable=self.progress_var2, bg="#ecf0f1", font=("Arial", 12), fg="#2c3e50")
+        self.progress_label2.pack(anchor="w", padx=12, pady=(10, 0))
+        self.progress_bar2 = ttk.Progressbar(left, mode="determinate")
+        self.progress_bar2.pack(fill=tk.X, padx=12, pady=5)
+
+        right = tk.LabelFrame(parent, text="", font=("Arial", 14, "bold"), fg="#2c3e50", bg="#ecf0f1")
         right.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True, padx=(15, 0))
 
-        self.result_frame2 = tk.LabelFrame(right, text="Kết quả", font=FONT_SECTION, fg=FG_TITLE)
+        self.result_frame2 = tk.LabelFrame(right, text="Kết quả", font=("Arial", 14, "bold"), fg="#2c3e50", bg="#ecf0f1")
         self.result_frame2.pack(fill=tk.X, pady=(0, 10))
         self.tree_result2 = ttk.Treeview(
             self.result_frame2,
@@ -305,14 +340,14 @@ class App:
             self.tree_result2.column(c, anchor="center", width=100)
         self.tree_result2.pack(fill=tk.X, padx=12, pady=6)
 
-        chart_frame2 = tk.Frame(right)
+        chart_frame2 = tk.Frame(right, bg="#ecf0f1")
         chart_frame2.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
-        tk.Label(chart_frame2, text="So sánh hiệu năng:", font=("Arial", 11, "bold")).pack(anchor="w")
+        tk.Label(chart_frame2, text="So sánh hiệu năng:", font=("Arial", 14, "bold"), bg="#ecf0f1", fg="#2c3e50").pack(anchor="w")
 
-        plot_container2 = tk.Frame(chart_frame2)
+        plot_container2 = tk.Frame(chart_frame2, bg="#ecf0f1")
         plot_container2.pack(fill=tk.BOTH, expand=True)
 
-        left_plot2 = tk.Frame(plot_container2, width=380)
+        left_plot2 = tk.Frame(plot_container2, width=380, bg="#ecf0f1")
         left_plot2.pack(side=tk.LEFT, fill=tk.Y, padx=(0, 10))
 
         self.fig_bar2 = plt.Figure(figsize=(3.8, 6))
@@ -334,6 +369,9 @@ class App:
             if not ratios or not 1 <= max(ratios) <= 99:
                 raise ValueError
             runs = int(self.runs2.get())
+            self.progress_var2.set("Đang chạy...")
+            self.progress_bar2["maximum"] = len(ratios) * runs
+            self.progress_bar2["value"] = 0
         except:
             messagebox.showerror("Lỗi", "Nhập đúng: File, Tỷ lệ (30,50,70), Số lần!")
             return
@@ -343,6 +381,7 @@ class App:
         path = os.path.join(BASE_DIR, "data", f"data_{file}_unique.csv")
         w, v, full_c = load_knapsack_from_csv(path)
         results = []
+        total_progress = 0
 
         for idx, r in enumerate(ratios):
             c = int(full_c * r // 100)
@@ -350,11 +389,15 @@ class App:
             ga_vals, ga_times, woa_vals, woa_times = [], [], [], []
             ga_hist_all, woa_hist_all = [], []
 
-            for _ in range(runs):
+            for run_idx in range(runs):
                 gv, gt, g_hist = run_single('GA', w, v, c, return_convergence=True)
                 wv, wt, w_hist = run_single('WOA', w, v, c, return_convergence=True)
                 ga_vals.append(gv); ga_times.append(gt); ga_hist_all.append(g_hist)
                 woa_vals.append(wv); woa_times.append(wt); woa_hist_all.append(w_hist)
+                
+                # Cập nhật thanh tiến trình
+                total_progress += 1
+                self.root.after(0, self.update_progress2, total_progress, len(ratios) * runs, idx + 1, len(ratios), run_idx + 1, runs)
 
             max_len = max(len(h) for h in ga_hist_all + woa_hist_all if h)
             ga_hist_padded = [np.pad(h, (0, max_len - len(h)), constant_values=h[-1] if h else 0) if len(h) < max_len else h for h in ga_hist_all]
@@ -381,7 +424,13 @@ class App:
 
         self.root.after(0, self.show_th2_result, results)
 
+    def update_progress2(self, current, total, car_idx, total_cars, run_idx, runs_per_car):
+        self.progress_bar2["value"] = current
+        self.progress_var2.set(f"Xe {car_idx}/{total_cars} - Lần {run_idx}/{runs_per_car} (Tổng: {current}/{total})")
+
     def show_th2_result(self, results):
+        self.progress_var2.set(f"Hoàn thành! ({len(results)} loại xe)")
+        
         # CẬP NHẬT BẢNG KẾT QUẢ
         for i in self.tree_result2.get_children(): self.tree_result2.delete(i)
         for r in results:
@@ -403,20 +452,20 @@ class App:
         self.ax_time2.clear()
 
         bars_val = self.ax_value2.bar(['GA', 'WOA'], [avg_ga_val, avg_woa_val], 
-                                     color=[COLOR_GA, COLOR_WOA], width=0.6, edgecolor='black')
+                                     color=["#e67e22", "#3498db"], width=0.6, edgecolor='black')
         self.ax_value2.set_title("Giá trị trung bình (Tất cả xe)", fontsize=10, fontweight='bold')
         self.ax_value2.set_ylabel("Giá trị")
         for bar in bars_val:
             h = bar.get_height()
-            self.ax_value2.text(bar.get_x() + bar.get_width()/2, h + h*0.02, f"{h:,.0f}", ha='center', fontsize=9, fontweight='bold')
+            self.ax_value2.text(bar.get_x() + bar.get_width()/2, h + h*0.02, f"{h:,.0f}", ha='center', fontsize=10, fontweight='bold')
 
         bars_time = self.ax_time2.bar(['GA', 'WOA'], [avg_ga_time, avg_woa_time], 
-                                      color=[COLOR_GA, COLOR_WOA], width=0.6, edgecolor='black')
+                                      color=["#e67e22", "#3498db"], width=1, edgecolor='black')
         self.ax_time2.set_title("Thời gian trung bình (giây)", fontsize=10, fontweight='bold')
         self.ax_time2.set_ylabel("Giây")
         for bar in bars_time:
             h = bar.get_height()
-            self.ax_time2.text(bar.get_x() + bar.get_width()/2, h + h*0.02, f"{h:.3f}", ha='center', fontsize=9, fontweight='bold')
+            self.ax_time2.text(bar.get_x() + bar.get_width()/2, h + h*0.02, f"{h:.3f}", ha='center', fontsize=10, fontweight='bold')
 
         self.fig_bar2.tight_layout()
         self.can_bar2.draw()
@@ -451,11 +500,11 @@ class App:
         self.can_conv2.draw()
 
     def _plot_convergence(self, ax, result, title):
-        #Hàm helper để vẽ biểu đồ hội tụ cho 1 loại xe
+        """Hàm helper để vẽ biểu đồ hội tụ cho 1 loại xe"""
         gens = range(len(result['ga_hist']))
         
-        ax.plot(gens, result['ga_hist'], label='GA', color=COLOR_GA, linewidth=2.5)
-        ax.plot(gens, result['woa_hist'], label='WOA', color=COLOR_WOA, linewidth=2.5)
+        ax.plot(gens, result['ga_hist'], label='GA', color="#e67e22", linewidth=2.5)
+        ax.plot(gens, result['woa_hist'], label='WOA', color="#3498db", linewidth=2.5)
 
         # Đường 95% tối ưu
         if result['max_fitness'] > 0:
