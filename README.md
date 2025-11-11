@@ -18,6 +18,8 @@ Mục tiêu:
 > Chọn tập hợp kiện hàng sao cho **tổng trọng lượng ≤ M** và **tổng giá trị lớn nhất**.
 
 Ứng dụng so sánh khả năng tối ưu của **GA** và **WOA** trong hai tình huống thực tế
+- Th1: Khi số lượng đơn hàng thay đổi 
+- Th2: Khi sức chứa xe thay đổi 
 
 ---
 ## ⚙️ Yêu cầu hệ thống
@@ -42,6 +44,11 @@ Các kịch bản:
 
 **Câu hỏi:** Thuật toán nào duy trì hiệu năng khi quy mô tăng?
 
+**Thiết lập**
+- Số đơn hàng: Thay đổi (100 → 500 → 1000)
+- Sức chứa xe = 50% tổng trọng lượng các kiện trong phạm vi chọn
+    Ví dụ: 100 kiện = 10 tấn → xe chở tối đa 5 tấn
+
 **Tính năng:**
 - Chọn và tải file dữ liệu (`100/500/1000 kiện`)  
 - Thêm / Sửa / Xóa kiện hàng trong danh sách  
@@ -52,16 +59,20 @@ Các kịch bản:
 
 ---
 
-### 🚗 Tình huống 2: **Lựa chọn loại xe** (Thay đổi sức chứa)
+### 🚗 Tình huống 2: **Thay đổi sức chứa**
 **Mục tiêu:** Đánh giá khả năng thích ứng của thuật toán với các ràng buộc khác nhau.
 
 Các kịch bản:
-- **30% tổng trọng lượng** → Xe nhỏ (nội thành)  
-- **50% tổng trọng lượng** → Xe vừa (liên tỉnh)  
-- **70% tổng trọng lượng** → Xe lớn (vận chuyển xa)  
+- **30% tổng trọng lượng** → vận chuyển nội thành
+- **50% tổng trọng lượng** → vận chuyển liên tỉnh
+- **70% tổng trọng lượng** → vận chuyển đường dài
 
 **Câu hỏi:** Thuật toán nào linh hoạt hơn khi thay đổi điều kiện tải trọng?
 
+**Thiết lập**
+-Số đơn hàng:Giữ nguyên (vd: 1000 kiện)
+-Sức chứa xe: Thay đổi theo % người nhập
+ 
 **Tính năng:**
 - Chọn file dữ liệu (`100/500/1000 kiện`)  
 - Tùy chỉnh tỷ lệ sức chứa (vd: `30,50,70` hoặc `40,60,80`)  
