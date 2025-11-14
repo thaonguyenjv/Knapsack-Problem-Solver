@@ -203,6 +203,7 @@ class App:
     def exec_th1_full(self, start, end, runs):
         w = [x[2] for x in self.data[start:end]]
         v = [x[1] for x in self.data[start:end]]
+        # trọng lượng là 50% tổng trọng lượng các kiện
         c = int(sum(w) * 0.5)
 
         ga_vals, ga_times, woa_vals, woa_times = [], [], [], []
@@ -379,13 +380,15 @@ class App:
 
     def exec_th2_full(self, file, ratios, runs):
         path = os.path.join(BASE_DIR, "data", f"data_{file}_unique.csv")
-        w, v, full_c = load_knapsack_from_csv(path)
+        w, v, _ = load_knapsack_from_csv(path)
+        total_weight = sum(w)
         results = []
         total_progress = 0
 
         for idx, r in enumerate(ratios):
-            c = int(full_c * r // 100)
+            c = int(total_weight * r / 100)
             name = 'Xe nhỏ' if r == 30 else 'Xe vừa' if r == 50 else 'Xe lớn' if r == 70 else f'Xe {r}%'
+            print(f"TH2 | {name}: Capacity = {c} ({r}% của {total_weight})")
             ga_vals, ga_times, woa_vals, woa_times = [], [], [], []
             ga_hist_all, woa_hist_all = [], []
 
